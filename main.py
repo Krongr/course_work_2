@@ -115,9 +115,6 @@ if __name__ == "__main__":
                             )
                             break
                         
-                elif event.text == 'стоп':
-                    chat_bot.send_message(event.user_id, 'пока')
-                    break
 
                 else:
                     chat_bot.send_message(event.user_id, 'нипанятна')
