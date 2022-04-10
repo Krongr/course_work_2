@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.append(os.getcwd())
+
 import sqlalchemy as sq
 from db.scheme import *
 from utils import get_credentials_from_file
