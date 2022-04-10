@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.append(os.getcwd())
+
 import sqlalchemy as sq
 from sqlalchemy.orm import sessionmaker
 from db.scheme import *

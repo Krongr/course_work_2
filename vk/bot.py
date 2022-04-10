@@ -8,8 +8,6 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 from app_user import AppUser
 from db.db_client import DbClient
 
-from utils import get_credentials_from_file
-
 
 class Bot():
     def __init__(self, chat_token, app_token, db_user, db_pass):
@@ -174,12 +172,3 @@ class Bot():
                         commands[event.text](event)
                     except KeyError:
                         self.send_help(event)
-
-bot = Bot(
-    get_credentials_from_file("credentials/bot_token.txt"),
-    get_credentials_from_file("credentials/app_token.txt"),
-    'db_user',
-    get_credentials_from_file("credentials/db_user_pass.txt")
-)
-
-bot.run()
