@@ -5,7 +5,7 @@ sys.path.append(os.getcwd())
 from random import randrange
 from vk_api import VkApi
 from vk_api.longpoll import VkLongPoll, VkEventType
-from app_user import AppUser
+from vk.app_user import AppUser
 from db.db_client import DbClient
 
 
@@ -17,15 +17,14 @@ class Bot():
         self.db_client = DbClient(db_user, db_pass)
         self.users = {}
 
-
-    def get_user_info(self, id:int) -> dict:
+    def get_user_info(self, id: int) -> dict:
         params = {
             'user_ids': id,
             'fields': 'bdate, sex, city'
         }
         return self.app.method('users.get', params)[0]
 
-    def search_for_candidates(self, user:AppUser) -> list:
+    def search_for_candidates(self, user: AppUser) -> list:
         sex = 1 if user.sex == 2 else 2
         params = {
                 'count': 1000,
@@ -37,7 +36,7 @@ class Bot():
             }
         return self.app.method('users.search', params)['items']
 
-    def get_photos(self, id:int) -> list:
+    def get_photos(self, id: int) -> list:
         params = {
             'user_id': id,
             'album_id': 'profile',
@@ -60,7 +59,7 @@ class Bot():
         for i in range(count):
             self.send_message(recipient_id, photos[i]['url'])
 
-    def check_candidate(self, user:int, candidate:dict) -> bool:
+    def check_candidate(self, user: int, candidate: dict) -> bool:
         unwanted_relations = {
             2: 'есть друг/есть подруга',
             3: 'помолвлен/помолвлена',
@@ -74,7 +73,7 @@ class Bot():
         if (
             'relation' in candidate and
             candidate['relation'] in unwanted_relations or
-            candidate['id'] in unwanted_ids            
+            candidate['id'] in unwanted_ids
         ):
             return False
         return True
@@ -82,16 +81,15 @@ class Bot():
     def send_message(self, recipient_id, message) -> None:
         params = {
             'user_id': recipient_id,
-            'message': message, 
+            'message': message,
             'random_id': randrange(10 ** 7)
         }
         self.chat.method('messages.send', params)
 
-
     def get_started(self, event) -> None:
         self.users[event.user_id] = AppUser(self.get_user_info(event.user_id))
 
-        if self.users[event.user_id].age == None:
+        if self.users[event.user_id].age is None:
             self.send_message(event.user_id, "Введите свой возраст")
             for event in self.longpoll.listen():
                 if event.type == VkEventType.MESSAGE_NEW:
@@ -106,7 +104,7 @@ class Bot():
                                 event.user_id, "Введите свой возраст"
                             )
 
-        if self.users[event.user_id].city == None:
+        if self.users[event.user_id].city is None:
             self.send_message(event.user_id, "Введите название своего города")
             for event in self.longpoll.listen():
                 if event.type == VkEventType.MESSAGE_NEW:
@@ -132,29 +130,29 @@ class Bot():
 
     def send_candidat(self, event) -> None:
         while True:
-           candidate = self.users[event.user_id].candidates.pop(0)
-           if self.check_candidate(event.user_id, candidate):
-               self.send_message(
-                   event.user_id,
-                   f'{candidate["first_name"]} '
-                   f'https://vk.com/id{candidate["id"]}'
+            candidate = self.users[event.user_id].candidates.pop(0)
+            if self.check_candidate(event.user_id, candidate):
+                self.send_message(
+                    event.user_id,
+                    f'{candidate["first_name"]} '
+                    f'https://vk.com/id{candidate["id"]}'
                 )
-               self.send_photos(event.user_id, candidate['id'])
-               self.db_client.create_meeting_list_record(
+                self.send_photos(event.user_id, candidate['id'])
+                self.db_client.create_meeting_list_record(
                    event.user_id,
                    candidate['id']
-               )
-               break
+                )
+                break
 
     def block_candidat(self, event) -> None:
         pass
-    
+
     def send_help(self, event) -> None:
         self.send_message(
             event.user_id,
             """Для начала работы отправь "привет",
             для поиска кандидатов - "искать",
-            для блокировки кандидата - "заблокировать".            
+            для блокировки кандидата - "заблокировать".
             """
         )
 

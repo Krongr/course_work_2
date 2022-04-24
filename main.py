@@ -10,4 +10,4 @@ if __name__ == "__main__":
         get_credentials_from_file("credentials/db_user_pass.txt")
     )
 
-    bot.run()    
+    bot.run()
