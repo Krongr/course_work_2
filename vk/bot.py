@@ -144,9 +144,6 @@ class Bot():
                 )
                 break
 
-    def block_candidat(self, event) -> None:
-        pass
-
     def send_help(self, event) -> None:
         self.send_message(
             event.user_id,
@@ -160,7 +157,6 @@ class Bot():
         commands = {
             'привет': self.get_started,
             'искать': self.send_candidat,
-            'заблокировать': self.block_candidat
         }
 
         for event in self.longpoll.listen():
